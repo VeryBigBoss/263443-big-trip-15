@@ -1,7 +1,6 @@
 import {humanizeDay, humanizeMinuteAndHours, calculateDuration, humanizeDuration} from '../utils';
 
-const createSelectedOffersTemplate = (offers) => {
-  return offers !== undefined ? `<ul class="event__selected-offers">
+const createSelectedOffersTemplate = (offers) => offers !== undefined ? `<ul class="event__selected-offers">
         ${offers.map((offer) =>
     `<li class="event__offer">
           <span class="event__offer-title">${offer.title}</span>
@@ -9,7 +8,6 @@ const createSelectedOffersTemplate = (offers) => {
           <span class="event__offer-price">${offer.price}</span>
         </li>`).join('')}
         </ul>` : '';
-};
 
 export const createTripPointTemplate = (tripEvent) => {
   const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, isFavorite} = tripEvent;
