@@ -1,7 +1,6 @@
 import {humanizeDate, getRandomInteger} from '../utils';
 
-const createAvailableOffersTemplate = (offers) => {
-  return offers !== undefined ? `<section class="event__section  event__section--offers">
+const createAvailableOffersTemplate = (offers) => offers !== undefined ? `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
         ${offers.map((offer) =>
@@ -17,19 +16,14 @@ const createAvailableOffersTemplate = (offers) => {
           </div>`).join('')}
         </div>
         </section>` : '';
-};
 
-const createDestinationDescriptionTemplate = (destination) => {
-  return destination !== undefined && destination.description !== undefined ? `<p class="event__destination-description">${destination.description}</p>` : '';
-};
+const createDestinationDescriptionTemplate = (destination) => destination !== undefined && destination.description !== undefined ? `<p class="event__destination-description">${destination.description}</p>` : '';
 
-const createDestinationPhotoTemplate = (destination) => {
-  return destination !== undefined && destination.pictures !== '' ? `<div class="event__photos-container">
+const createDestinationPhotoTemplate = (destination) => destination !== undefined && destination.pictures !== '' ? `<div class="event__photos-container">
                       <div class="event__photos-tape">
                         ${destination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="Event photo">`).join('')}
                       </div>
                     </div>` : '';
-};
 
 const createDestinationSectionTemplate = (destination) => {
   const isDestinationPhoto = Boolean(getRandomInteger(0, 1));

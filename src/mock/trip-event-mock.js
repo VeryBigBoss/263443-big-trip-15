@@ -20,7 +20,7 @@ const generateCity = () => {
 const generateCost = () => getRandomInteger(0, MAX_COST);
 const generateDescription = () => {
   const randomCount = getRandomInteger(MIN_COUNT_TEXT_DESCRIPTION, MAX_COUNT_TEXT_DESCRIPTION);
-  let resultDescription = [];
+  const resultDescription = [];
   let i = 0;
   do {
     const randomIndex = getRandomInteger(0, DESCRIPTIONS.length - 1);

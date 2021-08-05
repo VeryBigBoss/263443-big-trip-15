@@ -25,7 +25,7 @@ export const humanizeDuration = (duration) => {
   const days = Math.floor(duration / (60 * 24));
   const hours = Math.floor((duration % (60 * 24)) / 60);
   const minute = Math.floor(duration % 60);
-  return (days > 0 ? `${numberFormat(days)}D ` : '') + (days > 0 ? `${numberFormat(hours)}H ` : '') + `${numberFormat(minute)}M`;
+  return `${(days > 0 ? `${numberFormat(days)}D ` : '') + (days > 0 ? `${numberFormat(hours)}H ` : '')  }${numberFormat(minute)}M`;
 };
 
 export const isFuture = (date) => dayjs(date).isSameOrAfter(dayjs(), 'day');

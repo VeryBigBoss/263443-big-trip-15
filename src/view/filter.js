@@ -1,10 +1,8 @@
-const createFilterItemTemplate = (name) => {
+const createFilterItemTemplate = (name) =>
   // const {name} = filter;
-  return `<input id="filter-${name}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter"
+  `<input id="filter-${name}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter"
                value="${name}" >
         <label class="trip-filters__filter-label" for="filter-${name}">${name}</label>`;
-};
-
 export const creatFilterTemplate = (filterItems) => {
   const filterItemsTemplate = filterItems
     .map((filter) => createFilterItemTemplate(filter))
@@ -19,4 +17,4 @@ export const creatFilterTemplate = (filterItems) => {
       <button class="visually-hidden" type="submit">Accept filter</button>
     </form>
   </div>`;
-}
+};
