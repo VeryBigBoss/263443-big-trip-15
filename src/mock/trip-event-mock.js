@@ -50,7 +50,7 @@ const generateDateTimeEnd = (date) => {
 const generateOffers = (pointType) => {
   const offersArr = OFFERS.get(pointType);
   const countRandom = getRandomInteger(0, MAX_COUNT_OFFERS);
-  if (offersArr === undefined) {
+  if (offersArr === undefined || countRandom === 0) {
     return undefined;
   } else if (countRandom > offersArr.length) {
     return offersArr;

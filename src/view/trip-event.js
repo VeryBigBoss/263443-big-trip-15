@@ -1,4 +1,4 @@
-import {humanizeDay, humanizeMinuteAndHours, calculateDuration, humanizeDuration} from '../utils';
+import {humanizeDay, humanizeMinuteAndHours, calculateDuration, humanizeDuration, createElement} from '../utils';
 
 const createSelectedOffersTemplate = (offers) => offers !== undefined ? `<ul class="event__selected-offers">
         ${offers.map((offer) =>
@@ -9,7 +9,7 @@ const createSelectedOffersTemplate = (offers) => offers !== undefined ? `<ul cla
         </li>`).join('')}
         </ul>` : '';
 
-export const createTripPointTemplate = (tripEvent) => {
+const createTripPointTemplate = (tripEvent) => {
   const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, isFavorite} = tripEvent;
   const duration = humanizeDuration(calculateDuration(dateTimeBegin, dateTimeEnd));
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
@@ -46,3 +46,26 @@ export const createTripPointTemplate = (tripEvent) => {
     </div>
    </li>`;
 };
+
+export default class TripEvent {
+  constructor(tripEvent) {
+    this._tripEvent = tripEvent;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTripPointTemplate(this._tripEvent);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
