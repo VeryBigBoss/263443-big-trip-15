@@ -1,14 +1,14 @@
-import {humanizeDate, getRandomInteger} from '../utils';
+import {humanizeDate, getRandomInteger, createElement} from '../utils';
 
-const createAvailableOffersTemplate = (offers) => offers !== undefined ? `<section class="event__section  event__section--offers">
+const createAvailableOffersTemplate = (offers) => (offers !== undefined) ? `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
         ${offers.map((offer) =>
     `<div class="event__available-offers">
           <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox"
+            <input class="event__offer-checkbox  visually-hidden" id="${offer.title}${offer.price}" type="checkbox"
                    name="event-offer-luggage" ${Boolean(getRandomInteger(0, 1)) === true ? 'checked' : ''}>
-            <label class="event__offer-label" for="event-offer-luggage-1">
+            <label class="event__offer-label" for="${offer.title}${offer.price}">
               <span class="event__offer-title">${offer.title}</span>
               &plus;&euro;&nbsp;
               <span class="event__offer-price">${offer.price}</span>
@@ -36,11 +36,13 @@ const createDestinationSectionTemplate = (destination) => {
         </section>` : '';
 };
 
-export const createEventEditForm = (tripEvent) => {
-  const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, destination} = tripEvent;
-  const isOffers = Boolean(getRandomInteger(0, 1));
-  const isDestination = Boolean(getRandomInteger(0, 1));
+const createDetailsTemplate = (offers, destination) => (offers !== undefined || destination !== undefined) ? `<section class="event__details">
+    ${createAvailableOffersTemplate(offers)}
+    ${createDestinationSectionTemplate(destination)}
+    </section>` : '';
 
+const createEventEditForm = (tripEvent) => {
+  const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, destination} = tripEvent;
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
@@ -157,9 +159,33 @@ export const createEventEditForm = (tripEvent) => {
         <span class="visually-hidden">Open event</span>
       </button>
     </header>
-    <section class="event__details">
-      ${isOffers ? createAvailableOffersTemplate(offers) : ''}
-      ${isDestination ? createDestinationSectionTemplate(destination) : ''}
-    </section>
+    ${createDetailsTemplate(offers, destination)}
+<!--    <section class="event__details">-->
+<!--      {isOffers ? createAvailableOffersTemplate(offers) : ''}-->
+<!--      {isDestination ? createDestinationSectionTemplate(destination) : ''}-->
+<!--    </section>-->
   </form>`;
 };
+
+export default class EventEditForm {
+  constructor(tripEvent) {
+    this._tripEvent = tripEvent;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventEditForm(this._tripEvent);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

@@ -1,43 +1,61 @@
-import {createTripMainInfo} from './view/trip-main-info';
-import {createMenuTemplate} from './view/menu';
-import {creatFilterTemplate} from './view/filter';
-import {createSort} from './view/sort';
-import {createTripPointTemplate} from './view/trip-event';
-import {createTotalCostTemplate} from './view/total-cost';
-import {createTripEventListTemplate} from './view/trip-event-list';
-import {createEventEditForm} from './view/event-edit-form';
+import TripMainInfoView from './view/trip-main-info';
+import MenuView from './view/menu';
+import FilterView from './view/filter';
+import SortView from './view/sort';
+import TripEventView from './view/trip-event';
+import TotalCostView from './view/total-cost';
+import TripEventListView from './view/trip-event-list';
+import EventEditFormView from './view/event-edit-form';
 import {generateTripEvent} from './mock/trip-event-mock';
 import {generateFilter} from './mock/filter';
+import {RenderPosition, render} from './utils';
 
 const TRIP_POINT_COUNT = 15;
 
 const tripEvents = new Array(TRIP_POINT_COUNT).fill().map(generateTripEvent);
 const filters = generateFilter(tripEvents);
 
-const render = (container, template, place) => (
-  container.insertAdjacentHTML(place, template)
-);
-
 const siteHeaderElem = document.querySelector('header');
 const tripMainElem = siteHeaderElem.querySelector('.trip-main');
-render(tripMainElem, createTripMainInfo(), 'afterbegin');
-render(tripMainElem.querySelector('.trip-main__trip-info'), createTotalCostTemplate(), 'beforeend');
+const tripEventElem = document.querySelector('.trip-events');
+
+const renderEvent = (eventListElement, event) => {
+  const eventComponent = new TripEventView(event);
+  const eventEditComponent = new EventEditFormView(event);
+
+  const replaceEventToForm = () => {
+    eventListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+  };
+
+  const replaceFormToEvent = () => {
+    eventListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+  };
+
+  eventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replaceEventToForm();
+  });
+
+  eventEditComponent.getElement()./*querySelector('.event__save-btn').*/addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    replaceFormToEvent();
+  });
+
+  render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+};
+
+render(tripMainElem, new TripMainInfoView().getElement(), RenderPosition.AFTERBEGIN);
+render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView().getElement(), RenderPosition.BEFOREEND);
 
 const tripControlsNavigationElem = tripMainElem.querySelector('.trip-controls__navigation');
-render(tripControlsNavigationElem, createMenuTemplate(), 'beforeend');
+render(tripControlsNavigationElem, new MenuView().getElement(), RenderPosition.BEFOREEND);
 
 const tripControlsFilterElem = tripMainElem.querySelector('.trip-controls__filters');
-// render(tripControlsFilterElem, creatFilterTemplate(filters), 'beforeend');
-render(tripControlsFilterElem, creatFilterTemplate(filters), 'beforeend');
+render(tripControlsFilterElem, new FilterView(filters).getElement(), RenderPosition.BEFOREEND);
 
-const siteMainElem = document.querySelector('main');
-const tripEventListElem = siteMainElem.querySelector('.trip-events');
-render(tripEventListElem, createSort(), 'beforeend');
-render(tripEventListElem, createTripEventListTemplate(), 'beforeend');
+const tripEventList = new TripEventListView();
+render(tripEventElem, tripEventList.getElement(), RenderPosition.BEFOREEND);
+render(tripEventList.getElement(), new SortView().getElement(), RenderPosition.BEFOREEND);
 
 for (let i = 0; i < TRIP_POINT_COUNT; i++) {
-  // render(tripEventListElem.querySelector('.trip-events__list'), createTripPointTemplate(), 'beforeend');
-  render(tripEventListElem.querySelector('.trip-events__list'), createTripPointTemplate(tripEvents[i]), 'beforeend');
+  renderEvent(tripEventList.getElement(), tripEvents[i]);
 }
-
-render(tripEventListElem.querySelector('.trip-events__item').firstElementChild, createEventEditForm(tripEvents[0]), 'beforebegin');

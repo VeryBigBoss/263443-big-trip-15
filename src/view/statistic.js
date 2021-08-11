@@ -1,3 +1,5 @@
+import {createElement} from '../utils';
+
 export const createStatisticTemplate = () => (
   `<section class="statistics">
     <h2 class="visually-hidden">Trip statistics</h2>
@@ -15,3 +17,25 @@ export const createStatisticTemplate = () => (
     </div>
   </section>`
 );
+
+export default class Statistic {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createStatisticTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
