@@ -11,7 +11,7 @@ import {generateTripEvent} from './mock/trip-event-mock';
 import {generateFilter} from './mock/filter';
 import {RenderPosition, render} from './utils';
 
-const TRIP_POINT_COUNT = 0;
+const TRIP_POINT_COUNT = 15;
 
 const tripEvents = new Array(TRIP_POINT_COUNT).fill().map(generateTripEvent);
 const filters = generateFilter(tripEvents);
@@ -54,6 +54,18 @@ const renderEvent = (eventListElement, event) => {
   render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
+const renderTripList = (tripListContainer, tripsEvents) => {
+  if (tripEvents.length === 0) {
+    render(tripListContainer, new EmptyView().getElement(), RenderPosition.BEFOREEND);
+    return;
+  }
+
+  const tripEventList = new TripEventListView();
+  render(tripListContainer, tripEventList.getElement(), RenderPosition.BEFOREEND);
+  render(tripEventList.getElement(), new SortView().getElement(), RenderPosition.BEFOREEND);
+  tripsEvents.forEach((tripEvent) => renderEvent(tripEventList.getElement(), tripEvent));
+};
+
 render(tripMainElem, new TripMainInfoView().getElement(), RenderPosition.AFTERBEGIN);
 render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView().getElement(), RenderPosition.BEFOREEND);
 
@@ -62,15 +74,4 @@ render(tripControlsNavigationElem, new MenuView().getElement(), RenderPosition.B
 
 const tripControlsFilterElem = tripMainElem.querySelector('.trip-controls__filters');
 render(tripControlsFilterElem, new FilterView(filters).getElement(), RenderPosition.BEFOREEND);
-
-if (tripEvents.length === 0) {
-  // debugger;
-  render(tripEventElem, new EmptyView().getElement(), RenderPosition.BEFOREEND);
-} else {
-  const tripEventList = new TripEventListView();
-  render(tripEventElem, tripEventList.getElement(), RenderPosition.BEFOREEND);
-  render(tripEventList.getElement(), new SortView().getElement(), RenderPosition.BEFOREEND);
-  for (let i = 0; i < TRIP_POINT_COUNT; i++) {
-    renderEvent(tripEventList.getElement(), tripEvents[i]);
-  }
-}
+renderTripList(tripEventElem, tripEvents);
