@@ -51,6 +51,10 @@ const renderEvent = (eventListElement, event) => {
     document.addEventListener('keydown', onEscKeyDown);
   });
 
+  eventEditComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replaceFormToEvent();
+  });
+
   render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
