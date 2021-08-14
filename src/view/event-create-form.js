@@ -1,4 +1,4 @@
-import {createElement} from '../utils';
+import AbstractView from './abstract.js';
 
 const createEventNewForm = () => (
   `<form class="event event--edit" action="#" method="post">
@@ -119,24 +119,8 @@ const createEventNewForm = () => (
   </form>`
 );
 
-export default class EventNewForm {
-  constructor() {
-    this._element = null;
-  }
-
+export default class EventNewForm extends AbstractView {
   getTemplate() {
     return createEventNewForm();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

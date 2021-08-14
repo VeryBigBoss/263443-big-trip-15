@@ -9,7 +9,7 @@ import EventEditFormView from './view/event-edit-form';
 import EmptyView from './view/empty';
 import {generateTripEvent} from './mock/trip-event-mock';
 import {generateFilter} from './mock/filter';
-import {RenderPosition, render} from './utils';
+import {render, RenderPosition, replace} from './utils/render';
 
 const TRIP_POINT_COUNT = 15;
 
@@ -25,11 +25,11 @@ const renderEvent = (eventListElement, event) => {
   const eventEditComponent = new EventEditFormView(event);
 
   const replaceEventToForm = () => {
-    eventListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+    replace(eventEditComponent, eventComponent);
   };
 
   const replaceFormToEvent = () => {
-    eventListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+    replace(eventComponent, eventEditComponent);
   };
 
   const onEscKeyDown = (evt) => {
@@ -40,42 +40,41 @@ const renderEvent = (eventListElement, event) => {
     }
   };
 
-  eventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+  eventComponent.setEditClickHandler(() => {
     replaceEventToForm();
     document.addEventListener('keydown', onEscKeyDown);
   });
 
-  eventEditComponent.getElement()./*querySelector('.event__save-btn').*/addEventListener('submit', (evt) => {
-    evt.preventDefault();
+  eventEditComponent.setFormSubmitHandler(() => {
     replaceFormToEvent();
     document.addEventListener('keydown', onEscKeyDown);
   });
 
-  eventEditComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+  eventEditComponent.setFormRollupHandler(() => {
     replaceFormToEvent();
   });
 
-  render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+  render(eventListElement, eventComponent, RenderPosition.BEFOREEND);
 };
 
 const renderTripList = (tripListContainer, tripsEvents) => {
   if (tripEvents.length === 0) {
-    render(tripListContainer, new EmptyView().getElement(), RenderPosition.BEFOREEND);
+    render(tripListContainer, new EmptyView(), RenderPosition.BEFOREEND);
     return;
   }
 
   const tripEventList = new TripEventListView();
-  render(tripListContainer, tripEventList.getElement(), RenderPosition.BEFOREEND);
-  render(tripEventList.getElement(), new SortView().getElement(), RenderPosition.BEFOREEND);
-  tripsEvents.forEach((tripEvent) => renderEvent(tripEventList.getElement(), tripEvent));
+  render(tripListContainer, tripEventList, RenderPosition.BEFOREEND);
+  render(tripEventList, new SortView(), RenderPosition.BEFOREEND);
+  tripsEvents.forEach((tripEvent) => renderEvent(tripEventList, tripEvent));
 };
 
-render(tripMainElem, new TripMainInfoView().getElement(), RenderPosition.AFTERBEGIN);
-render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView().getElement(), RenderPosition.BEFOREEND);
+render(tripMainElem, new TripMainInfoView(), RenderPosition.AFTERBEGIN);
+render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView(), RenderPosition.BEFOREEND);
 
 const tripControlsNavigationElem = tripMainElem.querySelector('.trip-controls__navigation');
-render(tripControlsNavigationElem, new MenuView().getElement(), RenderPosition.BEFOREEND);
+render(tripControlsNavigationElem, new MenuView(), RenderPosition.BEFOREEND);
 
 const tripControlsFilterElem = tripMainElem.querySelector('.trip-controls__filters');
-render(tripControlsFilterElem, new FilterView(filters).getElement(), RenderPosition.BEFOREEND);
+render(tripControlsFilterElem, new FilterView(filters), RenderPosition.BEFOREEND);
 renderTripList(tripEventElem, tripEvents);

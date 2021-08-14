@@ -1,4 +1,6 @@
-import {humanizeDate, getRandomInteger, createElement} from '../utils';
+import AbstractView from './abstract.js';
+import {getRandomInteger} from '../utils/common';
+import {humanizeDate} from '../utils/trip-event';
 
 const createAvailableOffersTemplate = (offers) => (offers !== undefined) ? `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -160,32 +162,38 @@ const createEventEditForm = (tripEvent) => {
       </button>
     </header>
     ${createDetailsTemplate(offers, destination)}
-<!--    <section class="event__details">-->
-<!--      {isOffers ? createAvailableOffersTemplate(offers) : ''}-->
-<!--      {isDestination ? createDestinationSectionTemplate(destination) : ''}-->
-<!--    </section>-->
   </form>`;
 };
 
-export default class EventEditForm {
+export default class EventEditForm extends AbstractView {
   constructor(tripEvent) {
+    super();
     this._tripEvent = tripEvent;
-    this._element = null;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formRollupHandler = this._formRollupHandler.bind(this);
   }
 
   getTemplate() {
     return createEventEditForm(this._tripEvent);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
   }
 
-  removeElement() {
-    this._element = null;
+  _formRollupHandler(evt) {
+    evt.preventDefault();
+    this._callback.formRollup();
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().addEventListener('click', this._formSubmitHandler);
+  }
+
+  setFormRollupHandler(callback) {
+    this._callback.formRollup = callback;
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._formRollupHandler);
   }
 }

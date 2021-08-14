@@ -1,4 +1,5 @@
-import {humanizeDay, humanizeMinuteAndHours, calculateDuration, humanizeDuration, createElement} from '../utils';
+import AbstractView from './abstract.js';
+import {humanizeDay, humanizeMinuteAndHours, calculateDuration, humanizeDuration} from '../utils/trip-event';
 
 const createSelectedOffersTemplate = (offers) => offers !== undefined ? `<ul class="event__selected-offers">
         ${offers.map((offer) =>
@@ -47,25 +48,24 @@ const createTripPointTemplate = (tripEvent) => {
    </li>`;
 };
 
-export default class TripEvent {
+export default class TripEvent extends AbstractView {
   constructor(tripEvent) {
+    super();
     this._tripEvent = tripEvent;
-    this._element = null;
+    this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   getTemplate() {
     return createTripPointTemplate(this._tripEvent);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.click();
   }
 
-  removeElement() {
-    this._element = null;
+  setEditClickHandler(callback) {
+    this._callback.click = callback;
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._editClickHandler);
   }
 }
