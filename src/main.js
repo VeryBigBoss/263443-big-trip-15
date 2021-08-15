@@ -6,9 +6,10 @@ import TripEventView from './view/trip-event';
 import TotalCostView from './view/total-cost';
 import TripEventListView from './view/trip-event-list';
 import EventEditFormView from './view/event-edit-form';
+import EmptyView from './view/empty';
 import {generateTripEvent} from './mock/trip-event-mock';
 import {generateFilter} from './mock/filter';
-import {RenderPosition, render} from './utils';
+import {render, RenderPosition, replace} from './utils/render';
 
 const TRIP_POINT_COUNT = 15;
 
@@ -24,38 +25,56 @@ const renderEvent = (eventListElement, event) => {
   const eventEditComponent = new EventEditFormView(event);
 
   const replaceEventToForm = () => {
-    eventListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+    replace(eventEditComponent, eventComponent);
   };
 
   const replaceFormToEvent = () => {
-    eventListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+    replace(eventComponent, eventEditComponent);
   };
 
-  eventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+  const onEscKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      replaceFormToEvent();
+      document.removeEventListener('keydown', onEscKeyDown);
+    }
+  };
+
+  eventComponent.setEditClickHandler(() => {
     replaceEventToForm();
+    document.addEventListener('keydown', onEscKeyDown);
   });
 
-  eventEditComponent.getElement()./*querySelector('.event__save-btn').*/addEventListener('submit', (evt) => {
-    evt.preventDefault();
+  eventEditComponent.setFormSubmitHandler(() => {
+    replaceFormToEvent();
+    document.addEventListener('keydown', onEscKeyDown);
+  });
+
+  eventEditComponent.setFormRollupHandler(() => {
     replaceFormToEvent();
   });
 
-  render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+  render(eventListElement, eventComponent, RenderPosition.BEFOREEND);
 };
 
-render(tripMainElem, new TripMainInfoView().getElement(), RenderPosition.AFTERBEGIN);
-render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView().getElement(), RenderPosition.BEFOREEND);
+const renderTripList = (tripListContainer, tripsEvents) => {
+  if (tripEvents.length === 0) {
+    render(tripListContainer, new EmptyView(), RenderPosition.BEFOREEND);
+    return;
+  }
+
+  const tripEventList = new TripEventListView();
+  render(tripListContainer, tripEventList, RenderPosition.BEFOREEND);
+  render(tripEventList, new SortView(), RenderPosition.BEFOREEND);
+  tripsEvents.forEach((tripEvent) => renderEvent(tripEventList, tripEvent));
+};
+
+render(tripMainElem, new TripMainInfoView(), RenderPosition.AFTERBEGIN);
+render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView(), RenderPosition.BEFOREEND);
 
 const tripControlsNavigationElem = tripMainElem.querySelector('.trip-controls__navigation');
-render(tripControlsNavigationElem, new MenuView().getElement(), RenderPosition.BEFOREEND);
+render(tripControlsNavigationElem, new MenuView(), RenderPosition.BEFOREEND);
 
 const tripControlsFilterElem = tripMainElem.querySelector('.trip-controls__filters');
-render(tripControlsFilterElem, new FilterView(filters).getElement(), RenderPosition.BEFOREEND);
-
-const tripEventList = new TripEventListView();
-render(tripEventElem, tripEventList.getElement(), RenderPosition.BEFOREEND);
-render(tripEventList.getElement(), new SortView().getElement(), RenderPosition.BEFOREEND);
-
-for (let i = 0; i < TRIP_POINT_COUNT; i++) {
-  renderEvent(tripEventList.getElement(), tripEvents[i]);
-}
+render(tripControlsFilterElem, new FilterView(filters), RenderPosition.BEFOREEND);
+renderTripList(tripEventElem, tripEvents);

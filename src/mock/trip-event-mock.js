@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import {OFFERS, DESCRIPTIONS, POINT_TYPES, CITIES} from '../const.js';
-import {getRandomInteger} from '../utils';
+import {getRandomInteger} from '../utils/common';
 
 
 const MIN_COUNT_TEXT_DESCRIPTION = 1;
