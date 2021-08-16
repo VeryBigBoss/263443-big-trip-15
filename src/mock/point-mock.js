@@ -67,7 +67,7 @@ const generatePictures = () => {
   return pictures;
 };
 
-export const generateTripEvent = () => {
+export const generatePoint = () => {
   const dateBegin = generateDateTimeBegin();
   const dateEnd = generateDateTimeEnd(dateBegin);
   const pointType = generatePointType();

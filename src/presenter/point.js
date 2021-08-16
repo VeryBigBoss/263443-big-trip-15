@@ -1,5 +1,5 @@
-import TripEventView from '../view/trip-event';
-import EventEditFormView from '../view/event-edit-form';
+import PointView from '../view/point';
+import PointEditView from '../view/point-edit';
 import {remove, render, RenderPosition, replace} from '../utils/render';
 
 const Mode = {
@@ -30,8 +30,8 @@ export default class Point {
     const prevPointComponent = this._pointComponent;
     const prevPointEditComponent = this._pointEditComponent;
 
-    this._pointComponent = new TripEventView(this._point);
-    this._pointEditComponent = new EventEditFormView(this._point);
+    this._pointComponent = new PointView(this._point);
+    this._pointEditComponent = new PointEditView(this._point);
 
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._pointComponent.setEditClickHandler(this._handleEditClick);
@@ -45,11 +45,12 @@ export default class Point {
 
     // Проверка на наличие в DOM необходима,
     // чтобы не пытаться заменить то, что не было отрисовано
+    // debugger;
     if (this._mode === Mode.EDITING) {
       replace(this._pointComponent, prevPointComponent);
     }
 
-    if (this._pointListContainer.getElement().contains(prevPointEditComponent.getElement())) {
+    if (this._mode === Mode.EDITING) {
       replace(this._pointEditComponent, prevPointEditComponent);
     }
 

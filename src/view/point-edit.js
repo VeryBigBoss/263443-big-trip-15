@@ -1,6 +1,6 @@
 import AbstractView from './abstract.js';
 import {getRandomInteger} from '../utils/common';
-import {humanizeDate} from '../utils/trip-event';
+import {humanizeDate} from '../utils/point';
 
 const createAvailableOffersTemplate = (offers) => (offers !== undefined) ? `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -43,7 +43,7 @@ const createDetailsTemplate = (offers, destination) => (offers !== undefined || 
     ${createDestinationSectionTemplate(destination)}
     </section>` : '';
 
-const createEventEditForm = (tripEvent) => {
+const createPointEditForm = (tripEvent) => {
   const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, destination} = tripEvent;
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
@@ -165,21 +165,21 @@ const createEventEditForm = (tripEvent) => {
   </form>`;
 };
 
-export default class EventEditForm extends AbstractView {
-  constructor(tripEvent) {
+export default class PointEdit extends AbstractView {
+  constructor(point) {
     super();
-    this._tripEvent = tripEvent;
+    this._point = point;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formRollupHandler = this._formRollupHandler.bind(this);
   }
 
   getTemplate() {
-    return createEventEditForm(this._tripEvent);
+    return createPointEditForm(this._point);
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._tripEvent);
+    this._callback.formSubmit(this._point);
   }
 
   _formRollupHandler(evt) {
@@ -189,7 +189,7 @@ export default class EventEditForm extends AbstractView {
 
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
-    this.getElement().addEventListener('click', this._formSubmitHandler);
+    this.getElement().addEventListener('submit', this._formSubmitHandler);
   }
 
   setFormRollupHandler(callback) {
