@@ -1,5 +1,5 @@
 import AbstractView from './abstract.js';
-import {humanizeDay, humanizeMinuteAndHours, calculateDuration, humanizeDuration} from '../utils/trip-event';
+import {humanizeDay, humanizeMinuteAndHours, calculateDuration, humanizeDuration} from '../utils/point';
 
 const createSelectedOffersTemplate = (offers) => offers !== undefined ? `<ul class="event__selected-offers">
         ${offers.map((offer) =>
@@ -10,8 +10,8 @@ const createSelectedOffersTemplate = (offers) => offers !== undefined ? `<ul cla
         </li>`).join('')}
         </ul>` : '';
 
-const createTripPointTemplate = (tripEvent) => {
-  const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, isFavorite} = tripEvent;
+const createPointTemplate = (point) => {
+  const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, isFavorite} = point;
   const duration = humanizeDuration(calculateDuration(dateTimeBegin, dateTimeEnd));
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
   const selectedOffers = createSelectedOffersTemplate(offers);
@@ -26,7 +26,7 @@ const createTripPointTemplate = (tripEvent) => {
         <p class="event__time">
           <time class="event__start-time" datetime="2019-03-18T12:25">${humanizeMinuteAndHours(dateTimeBegin)}</time>
           &mdash;
-          <time class="event__end-time" datetime="2019-03-18T13:35">${humanizeMinuteAndHours(dateTimeBegin)}</time>
+          <time class="event__end-time" datetime="2019-03-18T13:35">${humanizeMinuteAndHours(dateTimeEnd)}</time>
         </p>
         <p class="event__duration">${duration}</p>
       </div>
@@ -48,15 +48,16 @@ const createTripPointTemplate = (tripEvent) => {
    </li>`;
 };
 
-export default class TripEvent extends AbstractView {
-  constructor(tripEvent) {
+export default class Point extends AbstractView {
+  constructor(point) {
     super();
-    this._tripEvent = tripEvent;
+    this._point = point;
     this._editClickHandler = this._editClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
   getTemplate() {
-    return createTripPointTemplate(this._tripEvent);
+    return createPointTemplate(this._point);
   }
 
   _editClickHandler(evt) {
@@ -64,8 +65,18 @@ export default class TripEvent extends AbstractView {
     this._callback.click();
   }
 
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
   setEditClickHandler(callback) {
     this._callback.click = callback;
     this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._editClickHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector('.event__favorite-btn').addEventListener('click', this._favoriteClickHandler);
   }
 }
