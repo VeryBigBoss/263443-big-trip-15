@@ -179,7 +179,7 @@ export default class EventEditForm extends AbstractView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(this._tripEvent);
   }
 
   _formRollupHandler(evt) {

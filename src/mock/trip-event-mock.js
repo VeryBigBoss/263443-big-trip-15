@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
 import {OFFERS, DESCRIPTIONS, POINT_TYPES, CITIES} from '../const.js';
 import {getRandomInteger} from '../utils/common';
 
@@ -71,6 +72,7 @@ export const generateTripEvent = () => {
   const dateEnd = generateDateTimeEnd(dateBegin);
   const pointType = generatePointType();
   return {
+    id: nanoid(),
     type: pointType,
     city: generateCity(),
     dateTimeBegin: dateBegin, //'18/03/19 12:25',
