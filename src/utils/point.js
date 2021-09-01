@@ -25,3 +25,7 @@ export const humanizeDuration = (duration) => {
 export const isFuture = (date) => dayjs(date).isSameOrAfter(dayjs(), 'day');
 export const isPast = (date) => dayjs(date).isBefore(dayjs(date), 'day');
 // export const isEverything = () => dayjs(date).isBefore(dayjs(date), 'day');
+
+export const sortPointByDayAsc = (pointA, pointB) => dayjs(pointA.dateTimeBegin).diff(dayjs(pointB.dateTimeBegin));
+export const sortPointByTime = (pointA, pointB) => dayjs(pointB.dateTimeEnd).diff(pointB.dateTimeBegin, 'millisecond') - dayjs(pointA.dateTimeEnd).diff(pointA.dateTimeBegin, 'millisecond');
+export const sortPointByPriceDesc = (pointA, pointB) => pointB.cost - pointA.cost;

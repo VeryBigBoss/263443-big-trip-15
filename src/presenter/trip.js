@@ -4,6 +4,8 @@ import EmptyView from '../view/empty';
 import {render, RenderPosition} from '../utils/render';
 import PointPresenter from '../presenter/point';
 import {updateItem} from '../utils/common';
+import {SortType} from '../const';
+import {sortPointByDayAsc, sortPointByPriceDesc, sortPointByTime} from '../utils/point';
 
 export default class Trip {
   constructor(tripContainer) {
@@ -13,15 +15,30 @@ export default class Trip {
     this._pointListComponent = new PointListView();
     this._sortComponent = new SortView();
     this._emptyComponent = new EmptyView();
+    this._currentSortType = SortType.DAY.value;
 
     this._handlePointChange = this._handlePointChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
   init(points) {
     this._points = points.slice();
+    this._sourcedPoints = points.slice();
+    this._sortPoints(this._currentSortType);
     render(this._tripContainer, this._pointListComponent, RenderPosition.BEFOREEND);
     this._renderTrip();
+  }
+
+  _handleSortTypeChange(sortType) {
+    // debugger;
+    if (this._currentSortType === sortType) {
+      return;
+    }
+
+    this._sortPoints(sortType);
+    this._clearPointList();
+    this._renderPoints();
   }
 
   _handleModeChange() {
@@ -30,12 +47,31 @@ export default class Trip {
 
   _handlePointChange(updatedPoint) {
     this._points = updateItem(this._points, updatedPoint);
-    // debugger;
+    this._sourcedPoints = updateItem(this._sourcedPoints, updatedPoint);
     this._pointPresenter.get(updatedPoint.id);//.init(updatedPoint);
+  }
+
+  _sortPoints(sortType) {
+    switch (sortType) {
+      case SortType.DAY.value:
+        this._points.sort(sortPointByDayAsc);
+        break;
+      case SortType.TIME.value:
+        this._points.sort(sortPointByTime);
+        break;
+      case SortType.PRICE.value:
+        this._points.sort(sortPointByPriceDesc);
+        break;
+      // default:
+        // this._points = this._sourcedPoints.slice();
+    }
+
+    this._currentSortType = sortType;
   }
 
   _renderSort() {
     render(this._pointListComponent, this._sortComponent, RenderPosition.BEFOREEND);
+    this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
   _renderPoint(point) {
