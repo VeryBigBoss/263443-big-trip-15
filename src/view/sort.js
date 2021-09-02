@@ -60,7 +60,6 @@ export default class Sort extends AbstractView {
   }
 
   getTemplate() {
-    // return createSort();
     return createSortFormTemplate(this._currentSortType);
   }
 
@@ -69,10 +68,9 @@ export default class Sort extends AbstractView {
       return;
     }
 
-    evt.preventDefault();
+    // evt.preventDefault();
     this._removeInputChecked();
     evt.target.setAttribute('checked', 'true');
-    // evt.target.checked = 'true';
     this._callback.sortTypeChange(evt.target.dataset.sortType);
   }
 
