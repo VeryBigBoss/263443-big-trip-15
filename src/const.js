@@ -46,3 +46,26 @@ export const filters = ['everything',
   'future',
   'past',
 ];
+
+export const SortType = {
+  DAY: {
+    value: 'day',
+    isDisabled: false,
+  },
+  EVENT: {
+    value: 'event',
+    isDisabled: true,
+  },
+  TIME: {
+    value: 'time',
+    isDisabled: false,
+  },
+  PRICE: {
+    value: 'price',
+    isDisabled: false,
+  },
+  OFFERS: {
+    value: 'offers',
+    isDisabled: true,
+  },
+};
