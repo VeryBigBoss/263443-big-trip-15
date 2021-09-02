@@ -70,7 +70,17 @@ export default class Sort extends AbstractView {
     }
 
     evt.preventDefault();
+    this._removeInputChecked();
+    evt.target.setAttribute('checked', 'true');
+    // evt.target.checked = 'true';
     this._callback.sortTypeChange(evt.target.dataset.sortType);
+  }
+
+  _removeInputChecked() {
+    const inputs = this._element.querySelectorAll('input');
+    for (const input of inputs) {
+      input.removeAttribute('checked');
+    }
   }
 
   setSortTypeChangeHandler(callback) {
