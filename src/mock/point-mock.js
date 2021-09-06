@@ -30,7 +30,7 @@ const generateDescription = () => {
   }
   while (i !== randomCount);
 
-  return resultDescription.join(' ');
+  return getRandomInteger(0, 1) ? resultDescription.join(' ') : null;
 };
 
 const generateDateTimeBegin = () => {
@@ -52,7 +52,7 @@ const generateOffers = (pointType) => {
   const offersArr = OFFERS.get(pointType);
   const countRandom = getRandomInteger(0, MAX_COUNT_OFFERS);
   if (offersArr === undefined || countRandom === 0) {
-    return undefined;
+    return null;
   } else if (countRandom > offersArr.length) {
     return offersArr;
   } else {
@@ -64,24 +64,25 @@ const generatePictures = () => {
   for (let i = 0; i < getRandomInteger(1, MAX_COUNT_PICTURES); i++) {
     pictures.push({src: `http://picsum.photos/248/152?r=${getRandomInteger(50, 150)}`, description: 'Chamonix parliament building'});
   }
-  return pictures;
+  return getRandomInteger(0, 1) ? pictures : null;
 };
 
 export const generatePoint = () => {
+  const city = generateCity();
   const dateBegin = generateDateTimeBegin();
   const dateEnd = generateDateTimeEnd(dateBegin);
   const pointType = generatePointType();
   return {
     id: nanoid(),
     type: pointType,
-    city: generateCity(),
+    city: city,
     dateTimeBegin: dateBegin, //'18/03/19 12:25',
     dateTimeEnd: generateDateTimeEnd(dateEnd),
     cost: generateCost(),
     offers: generateOffers(pointType),
     destination: {
       description: generateDescription(),
-      name: generateCity(),
+      name: city,
       pictures: generatePictures(),
     },
     isFavorite: Boolean(getRandomInteger(0, 1)),

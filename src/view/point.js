@@ -1,7 +1,7 @@
 import AbstractView from './abstract.js';
 import {humanizeDay, humanizeMinuteAndHours, calculateDuration, humanizeDuration} from '../utils/point';
 
-const createSelectedOffersTemplate = (offers) => offers !== undefined ? `<ul class="event__selected-offers">
+const createSelectedOffersTemplate = (offers) => offers !== null ? `<ul class="event__selected-offers">
         ${offers.map((offer) =>
     `<li class="event__offer">
           <span class="event__offer-title">${offer.title}</span>
