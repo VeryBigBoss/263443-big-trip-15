@@ -3,6 +3,7 @@ import {humanizeDate} from '../utils/point';
 import {DESTINATION, OFFERS, POINT_TYPES} from '../const';
 import {CITIES} from '../const';
 import flatpickr from 'flatpickr';
+import dayjs from 'dayjs';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
@@ -191,13 +192,13 @@ export default class PointEdit extends SmartView {
       .addEventListener('change', this._cityChangeHandler);
     this.getElement()
       .querySelector('.event__input--time')
-      .addEventListener('click', this._dateTimeBeginChangeHandler);
+      .addEventListener('change', this._dateTimeBeginChangeHandler);
     this.getElement()
-      .querySelector('.event__input--time')
-      .addEventListener('click', this._dateTimeEndChangeHandler);
+      .querySelectorAll('.event__input--time')[1]
+      .addEventListener('change', this._dateTimeEndChangeHandler);
     this.getElement()
       .querySelector('.event__input--price')
-      .addEventListener('click', this._costChangeHandler);
+      .addEventListener('change', this._costChangeHandler);
 
     const offerElements = this.getElement().querySelectorAll('.event__offer-checkbox');
     if (offerElements.length > 0) {
@@ -217,18 +218,22 @@ export default class PointEdit extends SmartView {
 
   _cityChangeHandler(evt) {
     evt.preventDefault();
-    let result = {};
-    for (const dest of DESTINATION) {
-      if (dest.name === evt.target.value) {
-        result = dest;
-      }
+    const result = DESTINATION.find((dest) => dest.name === evt.target.value);
+    if (result !== undefined) {
+      this.updateData({
+        city: evt.target.value,
+        destination: result,
+        isDescription: result.description !== undefined,
+        isPicture: result.pictures && result.pictures.length > 0,
+      }, false);
+    } else {
+      this.updateData({
+        city: evt.target.value,
+        destination: null,
+        isDescription: false,
+        isPicture: false,
+      }, false);
     }
-    this.updateData({
-      city: evt.target.value,
-      destination: result,
-      isDescription: result && result.description !== undefined,
-      isPicture: result && result.pictures && result.pictures.length > 0,
-    }, false);
   }
 
   _dateTimeBeginChangeHandler(userDate) {
@@ -248,7 +253,7 @@ export default class PointEdit extends SmartView {
   _costChangeHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      cost: this._data.cost,
+      cost: evt.target.value,
     }, true);
   }
 
@@ -256,8 +261,22 @@ export default class PointEdit extends SmartView {
     evt.target.toggleAttribute('checked');
   }
 
+  _validateForm(data) {
+    // if (this._data.dateTimeBegin > this._data.dateTimeEnd) {
+    if (dayjs(data.dateTimeBegin).isAfter(dayjs(data.dateTimeEnd))) {
+      // eslint-disable-next-line no-alert
+      alert('Дата начала не может быть больше даты конца');
+      return true;
+    }
+    return false;
+  }
+
   _formSubmitHandler(evt) {
     evt.preventDefault();
+    const error = this._validateForm(this._data);
+    if (error) {
+      return;
+    }
     this._callback.formSubmit(PointEdit.parseDataToPoint(this._data));
   }
 
