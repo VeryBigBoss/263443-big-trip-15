@@ -3,7 +3,6 @@ import {humanizeDate, humanizeValue, isDateValidate} from '../utils/point';
 import {DESTINATION, OFFERS, POINT_TYPES} from '../const';
 import {CITIES} from '../const';
 import flatpickr from 'flatpickr';
-import dayjs from 'dayjs';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 import {nanoid} from 'nanoid';
@@ -115,7 +114,7 @@ const createPointEditForm = (data) => {
 
 export default class PointEdit extends SmartView {
   constructor(point = {
-    id: null,
+    id: nanoid(),
     type: null,
     city: null,
     dateTimeBegin: null,
@@ -314,6 +313,7 @@ export default class PointEdit extends SmartView {
     evt.preventDefault();
     const error = this._validateForm(this._data);
     if (error !== '') {
+      // eslint-disable-next-line no-alert
       alert(error);
       return;
     }
