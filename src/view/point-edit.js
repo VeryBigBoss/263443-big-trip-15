@@ -1,11 +1,13 @@
 import SmartView from '../view/smart.js';
-import {humanizeDate} from '../utils/point';
+import {humanizeDate, humanizeValue, isDateValidate} from '../utils/point';
 import {DESTINATION, OFFERS, POINT_TYPES} from '../const';
 import {CITIES} from '../const';
 import flatpickr from 'flatpickr';
 import dayjs from 'dayjs';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+import {nanoid} from 'nanoid';
+import {isPositiveInteger} from '../utils/common';
 
 const createPointTypeItemTemplate = (type) => `<div class="event__type-item">
               <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type"
@@ -60,6 +62,7 @@ const createDetailsTemplate = (offers, destination, isOffers, isDescription, isP
 
 const createPointEditForm = (data) => {
   const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, destination, isOffers, isDescription, isPicture} = data;
+  const isNew = city === null && cost === null;
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
@@ -73,10 +76,10 @@ const createPointEditForm = (data) => {
 
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${type}
+          ${humanizeValue(type)}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text"
-               name="event-destination" value="${city}" list="destination-list-1">
+               name="event-destination" value="${humanizeValue(city)}" list="destination-list-1">
         <datalist id="destination-list-1">
           ${createCityListTemplate(CITIES)}
         </datalist>
@@ -97,11 +100,11 @@ const createPointEditForm = (data) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${cost}">
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${humanizeValue(cost)}">
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      <button class="event__reset-btn" type="reset">${isNew ? 'Cancel' : 'Delete'}</button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
       </button>
@@ -111,7 +114,21 @@ const createPointEditForm = (data) => {
 };
 
 export default class PointEdit extends SmartView {
-  constructor(point) {
+  constructor(point = {
+    id: null,
+    type: null,
+    city: null,
+    dateTimeBegin: null,
+    dateTimeEnd: null,
+    cost: null,
+    offers: null,
+    destination: {
+      description: null,
+      name: null,
+      pictures: null,
+    },
+    isFavorite: false,
+  }) {
     super();
     this._data = PointEdit.parsePointToData(point);
     this._datepicker = null;
@@ -122,6 +139,7 @@ export default class PointEdit extends SmartView {
     this._dateTimeEndChangeHandler = this._dateTimeEndChangeHandler.bind(this);
     this._costChangeHandler = this._costChangeHandler.bind(this);
     this._offersChangeHandler = this._offersChangeHandler.bind(this);
+    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formRollupHandler = this._formRollupHandler.bind(this);
 
@@ -132,6 +150,17 @@ export default class PointEdit extends SmartView {
 
   getTemplate() {
     return createPointEditForm(this._data);
+  }
+
+  // Перегружаем метод родителя removeElement,
+  // чтобы при удалении удалялся более ненужный календарь
+  removeElement() {
+    super.removeElement();
+
+    if (this._datepicker) {
+      this._datepicker.destroy();
+      this._datepicker = null;
+    }
   }
 
   reset(point) {
@@ -146,6 +175,7 @@ export default class PointEdit extends SmartView {
     this._setDatepickerEnd();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setFormRollupHandler(this._callback.formRollup);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   }
 
   _setDatepicker() {
@@ -176,7 +206,7 @@ export default class PointEdit extends SmartView {
       {
         enableTime: true,
         dateFormat: 'd/m/Y H:i',
-        minDate: this._data.dateTimeBegin,
+        // minDate: this._data.dateTimeBegin,
         defaultDate: this._data.dateTimeEnd,
         onChange: this._dateTimeEndChangeHandler,
       },
@@ -236,14 +266,14 @@ export default class PointEdit extends SmartView {
     }
   }
 
-  _dateTimeBeginChangeHandler(userDate) {
+  _dateTimeBeginChangeHandler([userDate]) {
     // evt.preventDefault();
     this.updateData({
       dateTimeBegin: userDate,
     }, true);
   }
 
-  _dateTimeEndChangeHandler(userDate) {
+  _dateTimeEndChangeHandler([userDate]) {
     // evt.preventDefault();
     this.updateData({
       dateTimeEnd: userDate,
@@ -257,24 +287,34 @@ export default class PointEdit extends SmartView {
     }, true);
   }
 
+  _validateCity(city) {
+    return CITIES.includes(city, 0);
+  }
+
+  _validateCost(cost) {
+    return isPositiveInteger(Number(cost));
+  }
+
+  _validateDate(dateBegin, dateEnd) {
+    return isDateValidate(dateBegin, dateEnd);
+  }
+
   _offersChangeHandler(evt) {
     evt.target.toggleAttribute('checked');
   }
 
   _validateForm(data) {
-    // if (this._data.dateTimeBegin > this._data.dateTimeEnd) {
-    if (dayjs(data.dateTimeBegin).isAfter(dayjs(data.dateTimeEnd))) {
-      // eslint-disable-next-line no-alert
-      alert('Дата начала не может быть больше даты конца');
-      return true;
-    }
-    return false;
+    const cityError = this._validateCity(data.city) ? '' : 'Город может быть выбран только из текущего списка\n';
+    const costError = this._validateCost(data.cost) ? '' : 'Стоимость может быть только целым неотрицательным числом\n';
+    const dateError = this._validateDate(data.dateTimeBegin, data.dateTimeEnd) ? '' : 'Проверьте правильность ввода дат\n';
+    return cityError + dateError + costError;
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
     const error = this._validateForm(this._data);
-    if (error) {
+    if (error !== '') {
+      alert(error);
       return;
     }
     this._callback.formSubmit(PointEdit.parseDataToPoint(this._data));
@@ -293,6 +333,16 @@ export default class PointEdit extends SmartView {
   setFormRollupHandler(callback) {
     this._callback.formRollup = callback;
     this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._formRollupHandler);
+  }
+
+  _formDeleteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteClick(PointEdit.parseDataToPoint(this._data));
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector('.event__reset-btn').addEventListener('click', this._formDeleteClickHandler);
   }
 
   static parsePointToData(point) {

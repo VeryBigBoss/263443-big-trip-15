@@ -4,7 +4,9 @@ export const calculateDuration = (dateBegin, dateEnd) => dayjs(dateEnd).diff(day
 
 export const humanizeMinuteAndHours = (date) => dayjs(date).format('HH:mm');
 export const humanizeDay = (date) => dayjs(date).format('MMM D');
-export const humanizeDate = (date) => dayjs(date).format('DD/MM/YY HH:mm');
+export const humanizeDate = (date) => date !== null ? dayjs(date).format('DD/MM/YY HH:mm') : '';
+
+export const humanizeValue = (value) => value === null || value === undefined ? '' : value;
 
 const numberFormat = (number) => {
   if (number > 0 && number < 10) {
@@ -22,10 +24,14 @@ export const humanizeDuration = (duration) => {
   return `${(days > 0 ? `${numberFormat(days)}D ` : '') + (days > 0 ? `${numberFormat(hours)}H ` : '')  }${numberFormat(minute)}M`;
 };
 
-export const isFuture = (date) => dayjs(date).isSameOrAfter(dayjs(), 'day');
-export const isPast = (date) => dayjs(date).isBefore(dayjs(date), 'day');
-// export const isEverything = () => dayjs(date).isBefore(dayjs(date), 'day');
+export const isEverything = (date) => date !== null;
+export const isFuture = (date) => dayjs(date).isAfter(dayjs(), 'day') || dayjs(date).isSame(dayjs(), 'day');
+export const isPast = (date) => dayjs(date).isBefore(dayjs(), 'day');
 
 export const sortPointByDayAsc = (pointA, pointB) => dayjs(pointA.dateTimeBegin).diff(dayjs(pointB.dateTimeBegin));
 export const sortPointByTime = (pointA, pointB) => dayjs(pointB.dateTimeEnd).diff(pointB.dateTimeBegin, 'millisecond') - dayjs(pointA.dateTimeEnd).diff(pointA.dateTimeBegin, 'millisecond');
 export const sortPointByPriceDesc = (pointA, pointB) => pointB.cost - pointA.cost;
+
+export const isDatesEqual = (dateA, dateB) => (dateA === null && dateB === null) ? true : dayjs(dateA).isSame(dateB, 'D');
+
+export const isDateValidate = (dateBegin, dateEnd) => dateBegin !== undefined && dateEnd !== undefined && dayjs(dateBegin).isBefore(dayjs(dateEnd));
