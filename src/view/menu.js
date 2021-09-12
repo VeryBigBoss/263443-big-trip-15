@@ -1,14 +1,57 @@
 import AbstractView from './abstract.js';
+import {MenuItem} from '../const.js';
+import {capitalize} from '../utils/common';
+
+const ACTIVE_MENU_CLASSNAME = 'trip-tabs__btn--active';
 
 const createMenuTemplate = () => (
   `<nav class="trip-controls__trip-tabs  trip-tabs">
-    <a class="trip-tabs__btn  trip-tabs__btn--active" href="#">Table</a>
-    <a class="trip-tabs__btn" href="#">Stats</a>
+    <a class="trip-tabs__btn  trip-tabs__btn--active"
+        data-menu-item="${MenuItem.TABLE}"
+        href="#">${capitalize(MenuItem.TABLE)}</a>
+    <a class="trip-tabs__btn"
+        data-menu-item="${MenuItem.STATS}"
+        href="#">${capitalize(MenuItem.STATS)}</a>
   </nav>`
 );
 
 export default class Menu extends AbstractView {
+  constructor() {
+    super();
+
+    this._menuClickHandler = this._menuClickHandler.bind(this);
+  }
+
   getTemplate() {
     return createMenuTemplate();
+  }
+
+  _menuClickHandler(evt) {
+    evt.preventDefault();
+    if (evt.target.tagName !== 'A') {
+      return;
+    }
+
+    if (evt.target.classList.contains(ACTIVE_MENU_CLASSNAME)) {
+      return;
+    }
+
+    this._callback.menuClick(evt.target.dataset.menuItem);
+  }
+
+  setMenuClickHandler(callback) {
+    this._callback.menuClick = callback;
+    this.getElement().addEventListener('click', this._menuClickHandler);
+  }
+
+  setMenuItem(menuItem) {
+    const items = this.getElement().querySelectorAll('A');
+    items.forEach((item) => item.dataset.menuItem === menuItem
+      ? item.classList.add(ACTIVE_MENU_CLASSNAME) /*&& (item.disable = true)*/
+      : item.classList.remove(ACTIVE_MENU_CLASSNAME) /*&& (item.disable = false)*/);
+
+    // if (item !== null) {
+    //   item.active = true;
+    // }
   }
 }
