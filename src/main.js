@@ -39,7 +39,6 @@ let statComponent = null;
 
 const handlePointNewFormClose = () => {
   pointNewBtnElem.disabled = false;
-  menuComponent.setMenuItem(MenuItem.TABLE);
 };
 
 const handleSiteMenuClick = (menuItem) => {
@@ -69,8 +68,8 @@ const handleSiteMenuClick = (menuItem) => {
       // menuPresenter.changeMenu(MenuItem.STATS);
       menuComponent.setMenuItem(MenuItem.STATS);
       filterModel.setDisabled(true);
-      pointNewBtnElem.disabled = true;
       tripPresenter.destroy();
+      pointNewBtnElem.disabled = true;
       break;
   }
 };
@@ -80,7 +79,6 @@ pointNewBtnElem.addEventListener('click', (evt) => {
   pointNewBtnElem.disabled = true;
   filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
   tripPresenter.createPoint(handlePointNewFormClose);
-  // handleSiteMenuClick(handlePointNewFormClose);
 });
 menuComponent.setMenuClickHandler(handleSiteMenuClick);
 
