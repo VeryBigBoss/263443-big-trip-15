@@ -5,6 +5,7 @@ export default class Filter extends AbstractObserver {
   constructor() {
     super();
     this._activeFilter = FilterType.EVERYTHING;
+    this._isDisabled = false;
   }
 
   setFilter(updateType, filter) {
@@ -14,5 +15,14 @@ export default class Filter extends AbstractObserver {
 
   getFilter() {
     return this._activeFilter;
+  }
+
+  setDisabled(isDisabled) {
+    this._isDisabled = isDisabled;
+    this._notify();
+  }
+
+  getDisabled() {
+    return this._isDisabled;
   }
 }

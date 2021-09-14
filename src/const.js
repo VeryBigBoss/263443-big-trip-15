@@ -133,3 +133,9 @@ export const MenuItem = {
   TABLE: 'TABLE',
   STATS: 'STATS',
 };
+
+export const ChartTypes = {
+  MONEY: 'MONEY',
+  TYPE: 'TYPE',
+  TIME_SPEND: 'TIME-SPEND',
+};

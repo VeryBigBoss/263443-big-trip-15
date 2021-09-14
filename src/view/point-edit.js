@@ -220,12 +220,6 @@ export default class PointEdit extends SmartView {
       .querySelector('.event__input--destination')
       .addEventListener('change', this._cityChangeHandler);
     this.getElement()
-      .querySelector('.event__input--time')
-      .addEventListener('change', this._dateTimeBeginChangeHandler);
-    this.getElement()
-      .querySelectorAll('.event__input--time')[1]
-      .addEventListener('change', this._dateTimeEndChangeHandler);
-    this.getElement()
       .querySelector('.event__input--price')
       .addEventListener('change', this._costChangeHandler);
 
@@ -351,8 +345,8 @@ export default class PointEdit extends SmartView {
       point,
       {
         isOffers: point.offers !== null,
-        isDescription: point.destination.description !== null,
-        isPicture: point.destination.pictures !== null,
+        isDescription: point.destination && point.destination.description !== null,
+        isPicture: point.destination && point.destination.pictures !== null,
       },
     );
   }
@@ -364,11 +358,11 @@ export default class PointEdit extends SmartView {
       data.offers = null;
     }
 
-    if (!data.isDescription) {
+    if (!data.isDescription && data.destination) {
       data.destination.description = null;
     }
 
-    if (!data.isPicture) {
+    if (!data.isPicture && data.destination) {
       data.destination.pictures = null;
     }
 

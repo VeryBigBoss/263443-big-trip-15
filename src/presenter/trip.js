@@ -45,7 +45,7 @@ export default class Trip {
     this._clearTrip({/*resetRenderedTaskCount: true, */resetSortType: true});
 
     remove(this._pointListComponent);
-    remove(this._tripContainer);
+    // remove(this._tripContainer);
 
     this._pointsModel.removeObserver(this._handleModelEvent);
     this._filterModel.removeObserver(this._handleModelEvent);
