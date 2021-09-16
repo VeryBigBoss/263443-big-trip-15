@@ -60,8 +60,11 @@ export default class Points extends AbstractObserver {
       {},
       point,
       {
+        // eslint-disable-next-line no-undef
         cost: point[base_price],
+        // eslint-disable-next-line no-undef
         dateTimeBegin: new Date(point[date_to]),
+        // eslint-disable-next-line no-undef
         dateTimeEnd: new Date(point[date_from]),
         isFavorite: point['is_favorite'],
       },
