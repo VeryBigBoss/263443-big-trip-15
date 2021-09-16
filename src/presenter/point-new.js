@@ -61,7 +61,8 @@ export default class PointNew {
     this._changeData(
       UserAction.ADD_POINT,
       UpdateType.MAJOR,
-      Object.assign({id: nanoid()}, point),
+      // Object.assign({id: nanoid()}, point),
+      point,
     );
     this.destroy();
   }

@@ -2,6 +2,7 @@ import SortView from '../view/sort';
 import PointListView from '../view/point-list';
 import EmptyView from '../view/empty';
 import {render, RenderPosition, remove} from '../utils/render';
+import LoadingView from '../view/loading.js';
 import PointPresenter from '../presenter/point';
 import PointNewPresenter from './point-new.js';
 import {SortType, UpdateType, UserAction, FilterType} from '../const';
@@ -9,7 +10,7 @@ import {sortPointByDayAsc, sortPointByPriceDesc, sortPointByTime} from '../utils
 import {filter} from '../utils/filter.js';
 
 export default class Trip {
-  constructor(tripContainer, pointsModel, filterModel) {
+  constructor(tripContainer, pointsModel, filterModel, api) {
     this._tripContainer = tripContainer;
     this._pointsModel = pointsModel;
     this._filterModel = filterModel;
@@ -23,6 +24,8 @@ export default class Trip {
     // this._sortComponent = new SortView();
     // this._emptyComponent = new EmptyView();
     this._currentSortType = SortType.DAY.value;
+    this._isLoading = true;
+    this._api = api;
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -30,6 +33,7 @@ export default class Trip {
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
     this._pointNewPresenter = new PointNewPresenter(this._pointListComponent, this._handleViewAction);
+    this._loadingComponent = new LoadingView();
   }
 
   init() {
@@ -97,14 +101,25 @@ export default class Trip {
     // update - обновленные данные
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this._pointsModel.updatePoint(updateType, update);
+        // this._pointsModel.updatePoint(updateType, update);
+        this._api.updatePoint(update).then((response) => {
+          this._pointsModel.updatePoint(updateType, response);
+        });
         break;
       case UserAction.ADD_POINT:
-        this._pointsModel.addPoint(updateType, update);
+        // this._pointsModel.addPoint(updateType, update);
+        this._api.addPoint(update).then((response) => {
+          this._pointsModel.addPoint(updateType, response);
+        });
         break;
       case UserAction.DELETE_POINT:
-        this._pointsModel.deletePoint(updateType, update);
-        break;
+        this._api.deletePoint(update).then(() => {
+          // Обратите внимание, метод удаления задачи на сервере
+          // ничего не возвращает. Это и верно,
+          // ведь что можно вернуть при удалении задачи?
+          // Поэтому в модель мы всё также передаем update
+          this._pointsModel.deletePoint(updateType, update);
+        });
     }
   }
 
@@ -127,6 +142,11 @@ export default class Trip {
       case UpdateType.MAJOR:
         // - обновить всю доску (например, при переключении фильтра)
         this._clearTrip({/*resetRenderedTaskCount: true, */resetSortType: true});
+        this._renderTrip();
+        break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
         this._renderTrip();
         break;
     }
@@ -157,6 +177,10 @@ export default class Trip {
     render(this._pointListComponent, this._emptyPointComponent, RenderPosition.BEFOREEND);
   }
 
+  _renderLoading() {
+    render(this._pointListComponent, this._loadingComponent, RenderPosition.AFTERBEGIN);
+  }
+
   _renderLoadMoreButton() {
   }
 
@@ -168,6 +192,7 @@ export default class Trip {
     this._pointPresenter.clear();
 
     remove(this._sortComponent);
+    remove(this._loadingComponent);
     // remove(this._loadMoreButtonComponent);
 
     // if (resetRenderedTaskCount) {
@@ -189,6 +214,11 @@ export default class Trip {
   }
 
   _renderTrip() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
     if (this._getPoints().length === 0) {
       this._renderNoPoints();
       return;
