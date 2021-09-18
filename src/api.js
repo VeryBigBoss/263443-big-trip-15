@@ -24,6 +24,16 @@ export default class Api {
       .then((points) => points.map(PointModel.adaptToClient));
   }
 
+  getOffers() {
+    return this._load({url: 'offers'})
+      .then(Api.toJSON);
+  }
+
+  getDestinations() {
+    return this._load({url: 'destinations'})
+      .then(Api.toJSON);
+  }
+
   updatePoint(point) {
     return this._load({
       url: `points/${point.id}`,
@@ -37,7 +47,7 @@ export default class Api {
 
   addPoint(point) {
     return this._load({
-      url: 'tasks',
+      url: 'points',
       method: Method.POST,
       body: JSON.stringify(PointModel.adaptToServer(point)),
       headers: new Headers({'Content-Type': 'application/json'}),

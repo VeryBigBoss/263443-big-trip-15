@@ -1,12 +1,26 @@
 import SmartView from '../view/smart.js';
 import {humanizeDate, humanizeValue, isDateValidate} from '../utils/point';
-import {DESTINATION, OFFERS, POINT_TYPES} from '../const';
-import {CITIES} from '../const';
+import {POINT_TYPES} from '../const';
 import flatpickr from 'flatpickr';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
-import {nanoid} from 'nanoid';
 import {isPositiveInteger} from '../utils/common';
+
+const EMPTY_POINT = {
+  // id: nanoid(),
+  type: null,
+  city: null,
+  dateTimeBegin: null,
+  dateTimeEnd: null,
+  cost: null,
+  offers: null,
+  destination: {
+    description: null,
+    name: null,
+    pictures: null,
+  },
+  isFavorite: false,
+};
 
 const createPointTypeItemTemplate = (type) => `<div class="event__type-item">
               <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type"
@@ -23,17 +37,20 @@ const createPointTypeListTemplate = () => `<div class="event__type-list">
 
 const createCityListTemplate = (cities) => `${cities.map((city) => `<option value="${city}"></option>`).join('')}`;
 
-const createAvailableOffersTemplate = (offers, isOffers) => isOffers ? `<section class="event__section  event__section--offers">
+const createAvailableOffersTemplate = (selectedOffers, availableOffers, isAvailableOffers) => isAvailableOffers ? `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
-        ${offers.map((offer) =>
+        ${availableOffers.map((availableOffer) =>
     `<div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="${offer.title}${offer.price}" type="checkbox"
-                   name="event-offer-${offer.title}">
-            <label class="event__offer-label" for="${offer.title}${offer.price}">
-              <span class="event__offer-title">${offer.title}</span>
+            <input class="event__offer-checkbox  visually-hidden" id="${availableOffer.title}${availableOffer.price}" type="checkbox"
+                   name="event-offer-${availableOffer.title}"
+                   data-offer-title="${availableOffer.title}"
+                   data-offer-price="${availableOffer.price}"
+                   ${selectedOffers.filter((item) => item.title === availableOffer.title).length > 0 ? 'checked' : ''}>
+            <label class="event__offer-label" for="${availableOffer.title}${availableOffer.price}">
+              <span class="event__offer-title">${availableOffer.title}</span>
               &plus;&euro;&nbsp;
-              <span class="event__offer-price">${offer.price}</span>
+              <span class="event__offer-price">${availableOffer.price}</span>
             </label>
           </div>`).join('')}
         </section>` : '';
@@ -54,20 +71,23 @@ const createDestinationSectionTemplate = (destination, isDescription, isPicture)
         </section>
         </section>` : '';
 
-const createDetailsTemplate = (offers, destination, isOffers, isDescription, isPicture) => (isOffers || (isDescription || isPicture)) ? `<section class="event__details">
-    ${createAvailableOffersTemplate(offers, isOffers)}
+const createDetailsTemplate = (availableOffers, selectedOffers, destination, isAvailableOffers, isDescription, isPicture) => (isAvailableOffers || (isDescription || isPicture)) ? `<section class="event__details">
+    ${createAvailableOffersTemplate(selectedOffers, availableOffers, isAvailableOffers)}
     ${createDestinationSectionTemplate(destination, isDescription, isPicture)}
     </section>` : '';
 
-const createPointEditForm = (data) => {
-  const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, destination, isOffers, isDescription, isPicture} = data;
+const createPointEditForm = (data, availableOffers, availableDestinations) => {
+  const {type, city, cost, dateTimeBegin, dateTimeEnd, destination, isDescription, isPicture} = data;
+  const selectedOffers = data.offers;
+  const availableCities = availableDestinations.map((item) => item.name);
+  const isAvailableOffers = availableOffers.length > 0;
   const isNew = city === null && cost === null;
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
-          <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+          <img class="event__type-icon" width="17" height="17" ${type ? `src="img/icons/${type}.png"` : ''} alt="Event type icon">
         </label>
         <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
         ${createPointTypeListTemplate()}
@@ -78,9 +98,9 @@ const createPointEditForm = (data) => {
           ${humanizeValue(type)}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text"
-               name="event-destination" value="${humanizeValue(city)}" list="destination-list-1">
+               name="event-destination" value="${humanizeValue(destination.name)}" list="destination-list-1">
         <datalist id="destination-list-1">
-          ${createCityListTemplate(CITIES)}
+            ${createCityListTemplate(availableCities)}
         </datalist>
       </div>
 
@@ -108,28 +128,17 @@ const createPointEditForm = (data) => {
         <span class="visually-hidden">Open event</span>
       </button>
     </header>
-    ${createDetailsTemplate(offers, destination, isOffers, isDescription, isPicture)}
+<!--    {createDetailsTemplate(offers, destination, isOffers, isDescription, isPicture)}-->
+    ${createDetailsTemplate(availableOffers, selectedOffers, destination, isAvailableOffers, isDescription, isPicture)}
   </form>`;
 };
 
 export default class PointEdit extends SmartView {
-  constructor(point = {
-    id: nanoid(),
-    type: null,
-    city: null,
-    dateTimeBegin: null,
-    dateTimeEnd: null,
-    cost: null,
-    offers: null,
-    destination: {
-      description: null,
-      name: null,
-      pictures: null,
-    },
-    isFavorite: false,
-  }) {
+  constructor(point = EMPTY_POINT, offers, destinations) {
     super();
     this._data = PointEdit.parsePointToData(point);
+    this._availableOffers = this._getAvailableOffers(offers, this._data);
+    this._destinations = destinations;
     this._datepicker = null;
     this._datepickerEnd = null;
     this._pointTypeChangeHandler = this._pointTypeChangeHandler.bind(this);
@@ -148,7 +157,7 @@ export default class PointEdit extends SmartView {
   }
 
   getTemplate() {
-    return createPointEditForm(this._data);
+    return createPointEditForm(this._data, this._availableOffers, this._destinations);
   }
 
   // Перегружаем метод родителя removeElement,
@@ -216,6 +225,9 @@ export default class PointEdit extends SmartView {
     this.getElement()
       .querySelector('.event__type-group')
       .addEventListener('change', this._pointTypeChangeHandler);
+    // this.getElement()
+    //   .querySelector('.event__available-offers')
+    //   .addEventListener('change', () => this._offersChangeHandler);
     this.getElement()
       .querySelector('.event__input--destination')
       .addEventListener('change', this._cityChangeHandler);
@@ -231,7 +243,7 @@ export default class PointEdit extends SmartView {
 
   _pointTypeChangeHandler(evt) {
     evt.preventDefault();
-    const offersTarget = OFFERS.get(evt.target.value);
+    const offersTarget = this._availableOffers.get(evt.target.value.toLowerCase());
     this.updateData({
       type: evt.target.value,
       offers: offersTarget !== undefined ? offersTarget : null,
@@ -239,9 +251,24 @@ export default class PointEdit extends SmartView {
     }, false);
   }
 
+  _validateCity(city) {
+    return Array.from(this._destinations.map((item) => item.name === city));
+  }
+
   _cityChangeHandler(evt) {
     evt.preventDefault();
-    const result = DESTINATION.find((dest) => dest.name === evt.target.value);
+
+    let validity = '';
+    if (this._validateCity(evt.target.value).length === 0) {
+      validity = 'Место назначения может быть выбрано только из списка';
+    }
+    evt.target.setCustomValidity(validity);
+    evt.target.reportValidity();
+    if (!evt.target.validity.valid) {
+      return;
+    }
+
+    const result = this._destinations.find((dest) => dest.name === evt.target.value);
     if (result !== undefined) {
       this.updateData({
         city: evt.target.value,
@@ -249,7 +276,8 @@ export default class PointEdit extends SmartView {
         isDescription: result.description !== undefined,
         isPicture: result.pictures && result.pictures.length > 0,
       }, false);
-    } else {
+    }
+    else {
       this.updateData({
         city: evt.target.value,
         destination: null,
@@ -280,10 +308,6 @@ export default class PointEdit extends SmartView {
     }, true);
   }
 
-  _validateCity(city) {
-    return CITIES.includes(city, 0);
-  }
-
   _validateCost(cost) {
     return isPositiveInteger(Number(cost));
   }
@@ -294,6 +318,12 @@ export default class PointEdit extends SmartView {
 
   _offersChangeHandler(evt) {
     evt.target.toggleAttribute('checked');
+    const offerElements = Array.from(this.getElement().querySelectorAll('.event__offer-checkbox:checked'));
+    // let object;
+    const selectedOffers = Array.from(offerElements.map((elem) =>  elem = {'title': elem.dataset.offerTitle, 'price': elem.dataset.offerPrice}));
+    this.updateData({
+      offers: selectedOffers,
+    }, true);
   }
 
   _validateForm(data) {
@@ -339,7 +369,18 @@ export default class PointEdit extends SmartView {
     this.getElement().querySelector('.event__reset-btn').addEventListener('click', this._formDeleteClickHandler);
   }
 
+  _getAvailableOffers(offers, point) {
+    if (point.type !== null && offers.size > 0) {
+      return offers.get(point.type);
+    } else {
+      return offers;
+    }
+  }
+
   static parsePointToData(point) {
+    if (!point) {
+      point = EMPTY_POINT;
+    }
     return Object.assign(
       {},
       point,

@@ -60,12 +60,9 @@ export default class Points extends AbstractObserver {
       {},
       point,
       {
-        // eslint-disable-next-line no-undef
-        cost: point[base_price],
-        // eslint-disable-next-line no-undef
-        dateTimeBegin: new Date(point[date_to]),
-        // eslint-disable-next-line no-undef
-        dateTimeEnd: new Date(point[date_from]),
+        cost: point['base_price'],
+        dateTimeBegin: new Date(point['date_from']),
+        dateTimeEnd: new Date(point['date_to']),
         isFavorite: point['is_favorite'],
       },
     );
@@ -84,9 +81,9 @@ export default class Points extends AbstractObserver {
       {},
       point,
       {
-        'base_price': point.cost, // На сервере дата хранится в ISO формате
-        'date_to': point.dateTimeBegin instanceof Date ? point.dateTimeBegin.toISOString() : null,
-        'date_from': point.dateTimeEnd instanceof Date ? point.dateTimeEnd.toISOString() : null,
+        'base_price': Number(point.cost), // На сервере дата хранится в ISO формате
+        'date_from': point.dateTimeBegin instanceof Date ? point.dateTimeBegin.toISOString() : null,
+        'date_to': point.dateTimeEnd instanceof Date ? point.dateTimeEnd.toISOString() : null,
         'is_favorite': point.isFavorite,
       },
     );

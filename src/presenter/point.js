@@ -10,10 +10,12 @@ const Mode = {
 };
 
 export default class Point {
-  constructor(pointListContainer, changeData, changeMode) {
+  constructor(pointListContainer, changeData, changeMode, offersModel, destinationsModel) {
     this._pointListContainer = pointListContainer;
     this._changeData = changeData;
     this._changeMode = changeMode;
+    this._offersModel = offersModel;
+    this._destinationsModel = destinationsModel;
 
     this._pointComponent = null;
     this._pointEditComponent = null;
@@ -34,7 +36,7 @@ export default class Point {
     const prevPointEditComponent = this._pointEditComponent;
 
     this._pointComponent = new PointView(this._point);
-    this._pointEditComponent = new PointEditView(this._point);
+    this._pointEditComponent = new PointEditView(this._point, this._offersModel.getOffers(), this._destinationsModel.getDestinations());
 
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._pointComponent.setEditClickHandler(this._handleEditClick);

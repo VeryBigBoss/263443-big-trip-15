@@ -5,6 +5,8 @@ import TotalCostView from './view/total-cost';
 // import {generatePoint} from './mock/point-mock';
 import PointsModel from './model/point.js';
 import FilterModel from './model/filter.js';
+import OffersModel from './model/offer.js';
+import DestinationsModel from './model/destination.js';
 import {remove, render, RenderPosition} from './utils/render';
 import TripPresenter from './presenter/trip';
 import FilterPresenter from './presenter/filter.js';
@@ -19,6 +21,8 @@ const END_POINT = 'https://15.ecmascript.pages.academy/big-trip';
 const api = new Api(END_POINT, AUTHORIZATION);
 
 const pointsModel = new PointsModel();
+const offersModel = new OffersModel();
+const destinationsModel = new DestinationsModel();
 // pointsModel.setPoints(points);
 
 const filterModel = new FilterModel();
@@ -35,7 +39,7 @@ render(tripMainElem, new TripMainInfoView(), RenderPosition.AFTERBEGIN);
 render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView(), RenderPosition.BEFOREEND);
 
 const tripControlsFilterElem = tripMainElem.querySelector('.trip-controls__filters');
-const tripPresenter = new TripPresenter(pointElem, pointsModel, filterModel, api);
+const tripPresenter = new TripPresenter(pointElem, pointsModel, offersModel, destinationsModel, filterModel, api);
 const filterPresenter = new FilterPresenter(tripControlsFilterElem, filterModel, pointsModel);
 let statComponent = null;
 
@@ -88,11 +92,16 @@ pointNewBtnElem.addEventListener('click', (evt) => {
 filterPresenter.init();
 tripPresenter.init();
 
-// api.getPoints().then((points) => {
-//   pointsModel.setPoints(points);
-// });
-api.getPoints()
-  .then((points) => {
+Promise.all([
+  api.getPoints(),
+  api.getOffers(),
+  api.getDestinations(),
+])
+//api.getPoints()
+  .then((values) => {
+    const [points, offers, destinations] = values;
+    destinationsModel.setDestinations(UpdateType.MINOR, destinations);
+    offersModel.setOffers(UpdateType.MINOR, offers);
     pointsModel.setPoints(UpdateType.INIT, points);
     render(tripControlsNavigationElem, menuComponent, RenderPosition.BEFOREEND);
     menuComponent.setMenuClickHandler(handleSiteMenuClick);
