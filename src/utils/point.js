@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-export const calculateDuration = (dateBegin, dateEnd) => dayjs(dateEnd).diff(dayjs(dateBegin), 'minute');
+export const calculateDuration = (dateBegin, dateEnd) => dayjs(dateEnd).diff(dayjs(dateBegin), 'millisecond');
 
 export const humanizeMinuteAndHours = (date) => dayjs(date).format('HH:mm');
 export const humanizeDay = (date) => dayjs(date).format('MMM D');
@@ -18,9 +18,12 @@ const numberFormat = (number) => {
 };
 
 export const humanizeDuration = (duration) => {
-  const days = Math.floor(duration / (60 * 24));
-  const hours = Math.floor((duration % (60 * 24)) / 60);
-  const minute = Math.floor(duration % 60);
+  const ONE_MINUTE = 60000;
+  const ONE_HOUR = 3600000;
+  const ONE_DAY = 86400000;
+  const days = Math.floor(duration / ONE_DAY);
+  const hours = Math.floor((duration % ONE_DAY) / ONE_HOUR);
+  const minute = Math.floor((duration % ONE_HOUR) / ONE_MINUTE);
   return `${(days > 0 ? `${numberFormat(days)}D ` : '') + (days > 0 ? `${numberFormat(hours)}H ` : '')  }${numberFormat(minute)}M`;
 };
 

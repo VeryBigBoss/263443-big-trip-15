@@ -11,7 +11,7 @@ const createSelectedOffersTemplate = (offers) => offers !== null ? `<ul class="e
         </ul>` : '';
 
 const createPointTemplate = (point) => {
-  const {type, city, cost, dateTimeBegin, dateTimeEnd, offers, isFavorite} = point;
+  const {type, destination, cost, dateTimeBegin, dateTimeEnd, offers, isFavorite} = point;
   const duration = humanizeDuration(calculateDuration(dateTimeBegin, dateTimeEnd));
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
   const selectedOffers = createSelectedOffersTemplate(offers);
@@ -19,9 +19,9 @@ const createPointTemplate = (point) => {
     <div class="event">
       <time class="event__date" datetime="2019-03-18">${humanizeDay(dateTimeBegin)}</time>
       <div class="event__type">
-        <img class="event__type-icon" width="42" height="42" src="img/icons/check-in.png" alt="Event type icon">
+        <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${type} ${city}</h3>
+      <h3 class="event__title">${type} ${destination.name}</h3>
       <div class="event__schedule">
         <p class="event__time">
           <time class="event__start-time" datetime="2019-03-18T12:25">${humanizeMinuteAndHours(dateTimeBegin)}</time>
