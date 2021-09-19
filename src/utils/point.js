@@ -24,7 +24,7 @@ export const humanizeDuration = (duration) => {
   const days = Math.floor(duration / ONE_DAY);
   const hours = Math.floor((duration % ONE_DAY) / ONE_HOUR);
   const minute = Math.floor((duration % ONE_HOUR) / ONE_MINUTE);
-  return `${(days > 0 ? `${numberFormat(days)}D ` : '') + (days > 0 ? `${numberFormat(hours)}H ` : '')  }${numberFormat(minute)}M`;
+  return `${(days > 0 ? `${numberFormat(days)}D ` : '') + (hours > 0 ? `${numberFormat(hours)}H ` : '')  }${numberFormat(minute)}M`;
 };
 
 export const isEverything = (date) => date !== null;
