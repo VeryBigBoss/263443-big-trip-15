@@ -28,7 +28,8 @@ export const humanizeDuration = (duration) => {
 };
 
 export const isEverything = (date) => date !== null;
-export const isFuture = (date) => dayjs(date).isAfter(dayjs(), 'day') || dayjs(date).isSame(dayjs(), 'day');
+export const isFuture = (dateFrom, dateTo) => (dayjs(dateFrom).isBefore(dayjs(), 'day') && (dayjs(dateTo).isAfter(dayjs(), 'day') || dayjs(dateTo).isSame(dayjs(), 'day')))
+  || (dayjs(dateFrom).isAfter(dayjs(), 'day') || dayjs(dateFrom).isSame(dayjs(), 'day'));
 export const isPast = (date) => dayjs(date).isBefore(dayjs(), 'day');
 
 export const sortPointByDayAsc = (pointA, pointB) => dayjs(pointA.dateTimeBegin).diff(dayjs(pointB.dateTimeBegin));

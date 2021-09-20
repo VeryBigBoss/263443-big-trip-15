@@ -7,13 +7,12 @@ import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 import {isPositiveInteger} from '../utils/common';
 
 const EMPTY_POINT = {
-  // id: nanoid(),
   type: null,
   city: null,
   dateTimeBegin: null,
   dateTimeEnd: null,
   cost: null,
-  offers: null,
+  offers: [],
   destination: {
     description: null,
     name: null,
@@ -78,12 +77,11 @@ const createDetailsTemplate = (type, availableOffers, selectedOffers, destinatio
     </section>` : '';
 
 const createPointEditForm = (data, availableOffers, availableDestinations) => {
-  const {type, city, cost, dateTimeBegin, dateTimeEnd, destination, isDescription, isPicture, isDisabled, isSaving, isDeleting} = data;
+  const {type, cost, dateTimeBegin, dateTimeEnd, destination, isDescription, isPicture, isDisabled, isSaving, isDeleting} = data;
   const selectedOffers = data.offers === null ? [] : data.offers;
   const availableCities = availableDestinations.map((item) => item.name);
-  // const isAvailableOffers = availableOffers.length > 0;
   const isAvailableOffers = type !== null ? availableOffers.get(type).length > 0 : false;
-  const isNew = city === null && cost === null;
+  const isNew = data.id === undefined;
   const resetBtnText = isNew ? 'Cancel' : 'Delete';
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
@@ -140,7 +138,6 @@ export default class PointEdit extends SmartView {
   constructor(point = EMPTY_POINT, offers, destinations) {
     super();
     this._data = PointEdit.parsePointToData(point);
-    // this._availableOffers = this._getAvailableOffersByType(offers, this._data.type);
     this._availableOffers = offers;
     this._destinations = destinations;
     this._datepicker = null;
@@ -164,8 +161,6 @@ export default class PointEdit extends SmartView {
     return createPointEditForm(this._data, this._availableOffers, this._destinations);
   }
 
-  // Перегружаем метод родителя removeElement,
-  // чтобы при удалении удалялся более ненужный календарь
   removeElement() {
     super.removeElement();
 
@@ -229,9 +224,6 @@ export default class PointEdit extends SmartView {
     this.getElement()
       .querySelector('.event__type-group')
       .addEventListener('change', this._pointTypeChangeHandler);
-    // this.getElement()
-    //   .querySelector('.event__available-offers')
-    //   .addEventListener('change', () => this._offersChangeHandler);
     this.getElement()
       .querySelector('.event__input--destination')
       .addEventListener('change', this._cityChangeHandler);
@@ -247,33 +239,37 @@ export default class PointEdit extends SmartView {
 
   _pointTypeChangeHandler(evt) {
     evt.preventDefault();
-    // const offersTarget = this._availableOffers.map((item) => item.title === evt.target.value.toLowerCase());
     const offersTarget = this._availableOffers.get(evt.target.value);
     this.updateData({
       type: evt.target.value,
-      // offers: offersTarget !== undefined ? offersTarget : null,
       isOffers: offersTarget !== undefined,
     }, false);
-  }
-
-  _validateCity(city) {
-    return Array.from(this._destinations.map((item) => item.name === city));
   }
 
   _cityChangeHandler(evt) {
     evt.preventDefault();
 
     let validity = '';
-    if (this._validateCity(evt.target.value).length === 0) {
+    const result = this._destinations.find((dest) => dest.name.toLowerCase() === evt.target.value.toLowerCase());
+    if (!result) {
       validity = 'Место назначения может быть выбрано только из списка';
     }
     evt.target.setCustomValidity(validity);
     evt.target.reportValidity();
     if (!evt.target.validity.valid) {
+      this.updateData({
+        city: evt.target.value,
+        destination: {
+          name: null,
+          description: null,
+          pictures: [],
+        },
+        isDescription: false,
+        isPicture: false,
+      }, false);
       return;
     }
 
-    const result = this._destinations.find((dest) => dest.name === evt.target.value);
     if (result !== undefined) {
       this.updateData({
         city: evt.target.value,
@@ -282,25 +278,15 @@ export default class PointEdit extends SmartView {
         isPicture: result.pictures && result.pictures.length > 0,
       }, false);
     }
-    else {
-      this.updateData({
-        city: evt.target.value,
-        destination: null,
-        isDescription: false,
-        isPicture: false,
-      }, false);
-    }
   }
 
   _dateTimeBeginChangeHandler([userDate]) {
-    // evt.preventDefault();
     this.updateData({
       dateTimeBegin: userDate,
     }, true);
   }
 
   _dateTimeEndChangeHandler([userDate]) {
-    // evt.preventDefault();
     this.updateData({
       dateTimeEnd: userDate,
     }, true);
@@ -308,6 +294,15 @@ export default class PointEdit extends SmartView {
 
   _costChangeHandler(evt) {
     evt.preventDefault();
+    let validity = '';
+    if (!this._validateCost(evt.target.value)) {
+      validity = 'Стоимость может быть только целым положительным числом';
+    }
+    evt.target.setCustomValidity(validity);
+    evt.target.reportValidity();
+    if (!evt.target.validity.valid) {
+      return;
+    }
     this.updateData({
       cost: evt.target.value,
     }, true);
@@ -324,26 +319,26 @@ export default class PointEdit extends SmartView {
   _offersChangeHandler(evt) {
     evt.target.toggleAttribute('checked');
     const offerElements = Array.from(this.getElement().querySelectorAll('.event__offer-checkbox:checked'));
-    // let object;
-    const selectedOffers = Array.from(offerElements.map((elem) =>  elem = {'title': elem.dataset.offerTitle, 'price': Number(elem.dataset.offerPrice)}));
+    const selectedOffers = Array.from(offerElements.map((elem) => elem = {
+      'title': elem.dataset.offerTitle,
+      'price': Number(elem.dataset.offerPrice),
+    }));
     this.updateData({
       offers: selectedOffers,
     }, true);
   }
 
-  _validateForm(data) {
-    const cityError = this._validateCity(data.city) ? '' : 'Город может быть выбран только из текущего списка\n';
-    const costError = this._validateCost(data.cost) ? '' : 'Стоимость может быть только целым неотрицательным числом\n';
-    const dateError = this._validateDate(data.dateTimeBegin, data.dateTimeEnd) ? '' : 'Проверьте правильность ввода дат\n';
-    return cityError + dateError + costError;
-  }
-
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    const error = this._validateForm(this._data);
-    if (error !== '') {
+    let messageError;
+    if (!this._validateDate(this._data.dateTimeBegin, this._data.dateTimeEnd)) {
+      messageError = 'Проверьте корректность заполнения дат';
+    } else if (this._data.type === null) {
+      messageError = 'Введите тип маршрута';
+    }
+    if (messageError) {
       // eslint-disable-next-line no-alert
-      alert(error);
+      alert(messageError);
       return;
     }
     this._callback.formSubmit(PointEdit.parseDataToPoint(this._data));
@@ -372,14 +367,6 @@ export default class PointEdit extends SmartView {
   setDeleteClickHandler(callback) {
     this._callback.deleteClick = callback;
     this.getElement().querySelector('.event__reset-btn').addEventListener('click', this._formDeleteClickHandler);
-  }
-
-  _getAvailableOffersByType(offers, type) {
-    if (type !== null && offers.size > 0) {
-      return offers.get(type);
-    } else {
-      return offers;
-    }
   }
 
   static parsePointToData(point) {

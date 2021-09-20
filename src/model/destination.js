@@ -7,7 +7,6 @@ export default class Destinations extends AbstractObserver {
   }
 
   setDestinations(updateType, destinations) {
-    // destinations.forEach((destination) => this._destinations.set(destination.type, destination.offers));
     this._destinations = destinations;
     this._notify(updateType);
   }

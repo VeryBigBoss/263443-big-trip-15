@@ -55,15 +55,11 @@ export default class Point {
       return;
     }
 
-    // Проверка на наличие в DOM необходима,
-    // чтобы не пытаться заменить то, что не было отрисовано
-    // debugger;
     if (this._mode === Mode.DEFAULT) {
       replace(this._pointComponent, prevPointComponent);
     }
 
     if (this._mode === Mode.EDITING) {
-      // replace(this._pointEditComponent, prevPointEditComponent);
       replace(this._pointComponent, prevPointEditComponent);
       this._mode = Mode.DEFAULT;
     }
@@ -152,15 +148,12 @@ export default class Point {
   }
 
   _handleFormSubmit(update) {
-    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
-    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
     const isMinorUpdate = !isDatesEqual(this._point.dateTimeBegin, update.dateTimeBegin);
 
     this._changeData(
       UserAction.UPDATE_POINT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       update);
-    // this._replaceFormToPoint();
     document.addEventListener('keydown', this._escKeyDownHandler);
   }
 
@@ -179,7 +172,6 @@ export default class Point {
       UpdateType.MINOR,
       point,
     );
-    // this._replaceFormToPoint();
   }
 
 }

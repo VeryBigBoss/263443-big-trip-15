@@ -23,8 +23,6 @@ export default class Trip {
     this._emptyPointComponent = null;
 
     this._pointListComponent = new PointListView();
-    // this._sortComponent = new SortView();
-    // this._emptyComponent = new EmptyView();
     this._currentSortType = SortType.DAY.value;
     this._isLoading = true;
     this._api = api;
@@ -50,10 +48,9 @@ export default class Trip {
   }
 
   destroy() {
-    this._clearTrip({/*resetRenderedTaskCount: true, */resetSortType: true});
+    this._clearTrip({resetSortType: true});
 
     remove(this._pointListComponent);
-    // remove(this._tripContainer);
 
     this._pointsModel.removeObserver(this._handleModelEvent);
     this._filterModel.removeObserver(this._handleModelEvent);
@@ -89,7 +86,7 @@ export default class Trip {
     }
 
     this._currentSortType = sortType;
-    this._clearTrip({/*resetRenderedTaskCount: true*/});
+    this._clearTrip({});
     this._renderTrip();
   }
 
@@ -135,17 +132,14 @@ export default class Trip {
   _handleModelEvent(updateType, data) {
     switch (updateType) {
       case UpdateType.PATCH:
-        // - обновить часть списка (например, когда поменялось описание)
         this._pointPresenter.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        // - обновить список (например, когда задача ушла в архив)
         this._clearTrip();
         this._renderTrip();
         break;
       case UpdateType.MAJOR:
-        // - обновить всю доску (например, при переключении фильтра)
-        this._clearTrip({/*resetRenderedTaskCount: true, */resetSortType: true});
+        this._clearTrip({resetSortType: true});
         this._renderTrip();
         break;
       case UpdateType.INIT:
@@ -186,28 +180,13 @@ export default class Trip {
     render(this._pointListComponent, this._loadingComponent, RenderPosition.AFTERBEGIN);
   }
 
-  _renderLoadMoreButton() {
-  }
-
-  _clearTrip({/*resetRenderedPointCount = false, */resetSortType = false} = {}) {
-    // const taskCount = this._getTasks().length;
-
+  _clearTrip({resetSortType = false} = {}) {
     this._pointNewPresenter.destroy();
     this._pointPresenter.forEach((presenter) => presenter.destroy());
     this._pointPresenter.clear();
 
     remove(this._sortComponent);
     remove(this._loadingComponent);
-    // remove(this._loadMoreButtonComponent);
-
-    // if (resetRenderedTaskCount) {
-    //   this._renderedTaskCount = TASK_COUNT_PER_STEP;
-    // } else {
-    //   // На случай, если перерисовка доски вызвана
-    //   // уменьшением количества задач (например, удаление или перенос в архив)
-    //   // нужно скорректировать число показанных задач
-    //   this._renderedTaskCount = Math.min(taskCount, this._renderedTaskCount);
-    // }
 
     if (this._emptyPointComponent) {
       remove(this._emptyPointComponent);

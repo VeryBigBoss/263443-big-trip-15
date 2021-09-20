@@ -2,7 +2,6 @@ import TripMainInfoView from './view/trip-info';
 import MenuView from './view/menu';
 import StatisticsView from './view/statistic.js';
 import TotalCostView from './view/total-cost';
-// import {generatePoint} from './mock/point-mock';
 import PointsModel from './model/point.js';
 import FilterModel from './model/filter.js';
 import OffersModel from './model/offer.js';
@@ -13,17 +12,14 @@ import FilterPresenter from './presenter/filter.js';
 import {MenuItem, UpdateType, FilterType} from './const.js';
 import Api from './api.js';
 
-// const TRIP_POINT_COUNT = 15;
 const AUTHORIZATION = 'Basic hck5t7ufSwcl1sa2j';
 const END_POINT = 'https://15.ecmascript.pages.academy/big-trip';
 
-// const points = new Array(TRIP_POINT_COUNT).fill().map(generatePoint);
 const api = new Api(END_POINT, AUTHORIZATION);
 
 const pointsModel = new PointsModel();
 const offersModel = new OffersModel();
 const destinationsModel = new DestinationsModel();
-// pointsModel.setPoints(points);
 
 const filterModel = new FilterModel();
 
@@ -61,7 +57,6 @@ const handleSiteMenuClick = (menuItem) => {
       break;
     case MenuItem.TABLE:
       tripPresenter.init();
-      // menuPresenter.changeMenu(MenuItem.TABLE);
       menuComponent.setMenuItem(MenuItem.TABLE);
       remove(statComponent);
       filterModel.setDisabled(false);
@@ -71,7 +66,6 @@ const handleSiteMenuClick = (menuItem) => {
     case MenuItem.STATS:
       statComponent = new StatisticsView(pointsModel.getPoints());
       render(statMainElem, statComponent, RenderPosition.BEFOREEND);
-      // menuPresenter.changeMenu(MenuItem.STATS);
       menuComponent.setMenuItem(MenuItem.STATS);
       filterModel.setDisabled(true);
       tripPresenter.destroy();
@@ -86,9 +80,7 @@ pointNewBtnElem.addEventListener('click', (evt) => {
   filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
   tripPresenter.createPoint(handlePointNewFormClose);
 });
-// menuComponent.setMenuClickHandler(handleSiteMenuClick);
 
-// render(tripControlsNavigationElem, menuComponent, RenderPosition.BEFOREEND);
 filterPresenter.init();
 tripPresenter.init();
 
@@ -97,7 +89,6 @@ Promise.all([
   api.getOffers(),
   api.getDestinations(),
 ])
-//api.getPoints()
   .then((values) => {
     const [points, offers, destinations] = values;
     destinationsModel.setDestinations(UpdateType.MINOR, destinations);

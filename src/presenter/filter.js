@@ -46,13 +46,10 @@ export default class Filter {
   }
 
   _getFilters() {
-    // const points = this._pointsModel.getPoints();
-
     return [
       {
         type: FilterType.EVERYTHING,
         name: 'everything',
-        // count: filter[FilterType.EVERYTHING](tasks).length,
       },
       {
         type: FilterType.FUTURE,

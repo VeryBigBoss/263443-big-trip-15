@@ -5,7 +5,7 @@ import {humanizeDuration} from './point';
 const filterPointsByType = (points, type) => points.filter((point) => point.type.toUpperCase() === type.toUpperCase());
 export const countPrice = (points) => points.reduce((price, point) => price + point.cost, 0);
 export const countQuantity = (points) => points.length;
-export const countDuration = (points) => points.reduce((duration, point) => duration + dayjs(point.dateTimeEnd).diff(dayjs(point.dateTimeBegin), 'minute'), 0);
+export const countDuration = (points) => points.reduce((duration, point) => duration + dayjs(point.dateTimeEnd).diff(dayjs(point.dateTimeBegin), 'millisecond'), 0);
 export const getUniquePointTypes = (points) => [...new Set(points.map((point) => point.type.toUpperCase()))];
 
 export const getTotalsByType = (points, callback) => {
@@ -19,6 +19,8 @@ export const getTotalsByType = (points, callback) => {
 
   return totals;
 };
+
+export const getSortByDesc = (result) => new Map([...result.entries()].sort((a, b) => b[1] - a[1]));
 
 export const getFormatter = (val, type) => {
   switch (type) {
