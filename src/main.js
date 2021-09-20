@@ -1,7 +1,5 @@
-import TripMainInfoView from './view/trip-info';
 import MenuView from './view/menu';
 import StatisticsView from './view/statistic.js';
-import TotalCostView from './view/total-cost';
 import PointsModel from './model/point.js';
 import FilterModel from './model/filter.js';
 import OffersModel from './model/offer.js';
@@ -26,15 +24,14 @@ const filterModel = new FilterModel();
 const siteHeaderElem = document.querySelector('header');
 const tripMainElem = siteHeaderElem.querySelector('.trip-main');
 const tripControlsNavigationElem = tripMainElem.querySelector('.trip-controls__navigation');
+const tripControlsFilterElem = tripMainElem.querySelector('.trip-controls__filters');
 const pointNewBtnElem = tripMainElem.querySelector('.trip-main__event-add-btn');
 const statMainElem = document.querySelector('.page-body__page-main > .page-body__container');
 const pointElem = document.querySelector('.trip-events');
 const menuComponent = new MenuView(false);
 
-render(tripMainElem, new TripMainInfoView(), RenderPosition.AFTERBEGIN);
-render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView(), RenderPosition.BEFOREEND);
-
-const tripControlsFilterElem = tripMainElem.querySelector('.trip-controls__filters');
+// render(tripMainElem, new TripMainInfoView(), RenderPosition.AFTERBEGIN);
+// render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView(), RenderPosition.BEFOREEND);
 const tripPresenter = new TripPresenter(pointElem, pointsModel, offersModel, destinationsModel, filterModel, api);
 const filterPresenter = new FilterPresenter(tripControlsFilterElem, filterModel, pointsModel);
 let statComponent = null;
