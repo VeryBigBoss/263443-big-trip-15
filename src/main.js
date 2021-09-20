@@ -30,8 +30,6 @@ const statMainElem = document.querySelector('.page-body__page-main > .page-body_
 const pointElem = document.querySelector('.trip-events');
 const menuComponent = new MenuView(false);
 
-// render(tripMainElem, new TripMainInfoView(), RenderPosition.AFTERBEGIN);
-// render(tripMainElem.querySelector('.trip-main__trip-info'), new TotalCostView(), RenderPosition.BEFOREEND);
 const tripPresenter = new TripPresenter(pointElem, pointsModel, offersModel, destinationsModel, filterModel, api);
 const filterPresenter = new FilterPresenter(tripControlsFilterElem, filterModel, pointsModel);
 let statComponent = null;
