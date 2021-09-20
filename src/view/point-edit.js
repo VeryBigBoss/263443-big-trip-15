@@ -129,7 +129,6 @@ const createPointEditForm = (data, availableOffers, availableDestinations) => {
         <span class="visually-hidden">Open event</span>
       </button>
     </header>
-<!--    {createDetailsTemplate(offers, destination, isOffers, isDescription, isPicture)}-->
     ${createDetailsTemplate(type, availableOffers, selectedOffers, destination, isAvailableOffers, isDescription, isPicture, isDisabled)}
   </form>`;
 };
