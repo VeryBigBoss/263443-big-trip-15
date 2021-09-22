@@ -212,7 +212,6 @@ export default class PointEdit extends SmartView {
       {
         enableTime: true,
         dateFormat: 'd/m/Y H:i',
-        // minDate: this._data.dateTimeBegin,
         defaultDate: this._data.dateTimeEnd,
         onChange: this._dateTimeEndChangeHandler,
       },
@@ -334,6 +333,8 @@ export default class PointEdit extends SmartView {
       messageError = 'Проверьте корректность заполнения дат';
     } else if (this._data.type === null) {
       messageError = 'Введите тип маршрута';
+    } else if (this._data.cost === null) {
+      messageError = 'Заполните стоимость маршрута';
     }
     if (messageError) {
       // eslint-disable-next-line no-alert
